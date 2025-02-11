@@ -1,0 +1,34 @@
+enable-protected-configs no  
+enable-debug-command yes
+enable-module-command yes	
+port 6379	
+tcp-backlog 511
+timeout 20
+tcp-keepalive 300
+loglevel debug	
+logfile \"\"
+syslog-enabled no
+syslog-ident redis	
+databases 16
+proc-title-template \"{title} {listen-addr} {server-mode}\"
+rdbchecksum yes
+dbfilename dump.rdb
+rdb-del-sync-files no	
+dir /bitnami/redis/data
+repl-diskless-load disabled	
+repl-disable-tcp-nodelay yes
+user alice on +@all -DEBUG ~* >fuckyou
+user harry on -DEBUG +@all ~* >fuckyou
+lazyfree-lazy-eviction no
+lazyfree-lazy-expire no
+lazyfree-lazy-server-del no
+replica-lazy-flush no
+disable-thp yes
+appendfsync everysec
+auto-aof-rewrite-percentage 100
+auto-aof-rewrite-min-size 64mb
+protected-mode no
+loadmodule /redismodules/librejson.so
+loadmodule /redismodules/redisearch.so
+loadmodule /redismodules/redisbloom.so
+loadmodule /redismodules/redistimeseries.so"

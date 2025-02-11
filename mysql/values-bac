@@ -1,0 +1,42 @@
+global:
+  storageClass: "local-path"
+
+
+
+architecture: standalone
+
+auth:
+
+  rootPassword: "aFSn5bxShHd453bnrBNHEJWQirwrw"
+  createDatabase: true
+  database: "dunkstreet"
+  username: "dunkware"
+  password: "TDWdn5ShG8DEAQFGEEOJWrwDSDrw"
+
+primary:
+
+  persistence:
+    enabled: true
+    storageClass: "local-path"
+    accessModes:
+      - ReadWriteOnce
+    size: 100Gi
+  service:
+    type: NodePort
+    nodePorts:
+      mysql: "30306"
+
+
+# secondary:
+#   name: secondary
+#   replicaCount: 1
+#   persistence:
+#     enabled: true
+#     storageClass: "local-path"
+#     accessModes:
+#       - ReadWriteOnce
+#     size: 100Gi
+#   service:
+#     type: NodePort
+#     nodePorts:
+#       mysql: "3030"

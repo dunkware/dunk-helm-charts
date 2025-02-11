@@ -1,0 +1,37 @@
+broker:
+  replicaCount: 1
+
+listeners:
+  external:
+    protocol: "PLAINTEXT"
+    name: "EXTERNAL"
+configurationOverrides:
+  "delete.topic.enable": true
+  "auto.create.topics": enable
+  "group.initial.rebalance.delay.ms": 3
+controller:
+  replicaCount: 5
+  persistence:
+    enabled: false
+   
+provisioning:
+  enabled: true
+  numPartitions: 1
+  replicationFactor: 1
+
+externalAccess:
+  enabled: true
+  controller:
+    service:
+      type: NodePort
+      port: 9094
+      nodePorts:
+        - 30100
+        - 30101
+        - 30102
+        - 30103
+        - 30104
+      useHostIPs: true
+        #domain: 127.0.0.1
+zookeeper:
+  enabled: false

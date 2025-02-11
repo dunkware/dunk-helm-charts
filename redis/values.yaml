@@ -1,0 +1,38 @@
+
+global:
+  redis:
+    password: "TaSnanbP5WQirwrw"
+
+
+architecture: replication
+
+
+nodeSelector:
+  type: dataNode
+
+master:
+
+  count: 1
+  persistence:
+    enabled: true
+    storageClass: "local-path"
+    accessModes:
+      - ReadWriteOnce
+    size: 40Gi
+  service:
+    type: NodePort
+    nodePorts:
+      redis: "30379"
+
+replica:
+  replicaCount: 3
+  persistence:
+    enabled: true
+    storageClass: "local-path"
+    accessModes:
+      - ReadWriteOnce
+    size: 40Gi
+  service:
+    type: NodePort
+    nodePorts:
+      redis: "30380"

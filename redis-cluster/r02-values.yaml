@@ -1,0 +1,41 @@
+global:
+  storageClass: "local-path"
+  redis:
+    password: "cacheMe2Please"
+#service:
+  ## @param service.ports.redis Kubernetes Redis service port
+  ##
+#  type: NodePort
+#  ports:
+#    redis: 6379
+  ## Node ports to expose
+  ## ref: https://kubernetes.io/docs/concepts/services-networking/service/#type-nodeport
+  ## @param service.nodePorts.redis Node port for Redis
+  ##
+#  nodePorts:
+#    redis: "32500,32501,32502,32503,32504,32505"
+
+persistence:
+  ## @param persistence.enabled Enable persistence on Redis&reg;
+  ## If enabled, nodes are using Persistent Volume Claims
+  ## If disabled, an emptyDir volume is used. This is not recommended.
+  ## ref: https://github.com/bitnami/charts/tree/main/bitnami/redis-cluster#persistence
+  ##
+  enabled: false
+ 
+image:
+  registry: docker.io
+  repository: arpahaider/redis-bitnami
+  tag: cluster-r02
+  digest: ""
+cluster:
+  externalAccess:
+   enabled: true
+#  nodes: 3
+redis:
+  configmap: |
+    loadmodule /redismodules/redistimeseries.so
+  
+#  nodeSelector:
+#    type: dataNode
+

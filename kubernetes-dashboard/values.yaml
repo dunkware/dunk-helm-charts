@@ -1,0 +1,21 @@
+image:
+  pullPolicy: IfNotPresent
+  repository: kubernetesui/dashboard
+  tag: v2.7.0
+
+service:
+  type: NodePort
+  nodePort: "30334"
+
+ingress:
+  enabled: false
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-production
+    kubernetes.io/ingress.class: nginx
+  hosts:
+  - kubedash.dunkstreet.com
+  tls:
+  - hosts:
+    - kubedash.dunkstreet.com
+    secretName: kubernetes-dashboard-tls
+

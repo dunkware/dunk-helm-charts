@@ -1,0 +1,22 @@
+# https://github.com/bitnami/containers/blob/main/bitnami/redis-cluster/7.2/debian-11/Dockerfile
+#FROM docker.io/bitnami/redis:7.2.1-debian-11-r0 
+FROM docker.io/bitnami/redis-cluster:7.2.3-debian-11-r2
+USER root
+
+RUN mkdir /redismodules
+
+WORKDIR /redismodules
+
+# https://github.com/RedisTimeSeries/RedisTimeSeries
+RUN apt-get update -y && \
+    apt-get install -y git make && \
+    git clone --recursive https://github.com/RedisTimeSeries/RedisTimeSeries.git ./RedisTimeSeries && \
+    cd RedisTimeSeries && \
+    ./sbin/setup && \
+    bash -l && \
+    make && \
+    mv ./bin/linux-x64-release/redistimeseries.so /redismodules/redistimeseries.so && \
+    cd /redismodules/ && \
+    rm -rf /redismodules/RedisTimeSeries
+WORKDIR /
+USER 1001

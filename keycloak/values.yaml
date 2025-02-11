@@ -1,0 +1,36 @@
+
+global:
+  storageClass: "local-path"
+
+auth:
+  adminUser: "DWadmin"
+  adminPassword: "fC5lKVxCUeZmIkQznXDhzh2ovF7IXqizPR"
+
+proxy: edge
+
+extraEnvVars:
+  - name: PROXY_ADDRESS_FORWARDING
+    value: "true"
+
+ingress:
+  enabled: true
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-production
+    nginx.ingress.kubernetes.io/proxy_redirect: "360"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "360"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "360"
+    nginx.ingress.kubernetes.io/proxy-body-size: "10m"
+    nginx.ingress.kubernetes.io/client-body-buffer-size: "10m"
+    nginx.ingress.kubernetes.io/backend-protocol: "HTTP"
+
+  ingressClassName: nginx
+  hostname: sso.dunkware.com
+  tls:
+    - secretName: keycloak-tls
+      hosts:
+        - sso.dunkware.com
+  rules:
+    - host: sso.dunkware.com
+      paths:
+        - path: /
+          pathType: Prefix

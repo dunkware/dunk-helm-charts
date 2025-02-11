@@ -1,0 +1,178 @@
+dbUser:
+  user: cassandra
+  forcePassword: false
+  password: "fuckyou"
+
+cluster:
+  name: cassandra
+  seedCount: 2
+  numTokens: 256
+  datacenter: dc1
+  rack: rack1
+  endpointSnitch: SimpleSnitch
+  ## NOTE: internodeEncryption requires tlsEncryptionSecretName
+  ##
+  internodeEncryption: none
+  clientEncryption: false
+  ## eg:
+  ## extraSeeds:
+  ##   - hostname/IP
+  ##   - hostname/IP
+  ##
+  extraSeeds: []
+  enableUDF: false
+
+hostNetwork: true
+
+jvm:
+  extraOpts: ""
+  ## Memory settings: These are calculated automatically unless specified otherwise
+  ## To run on environments with little resources (<= 8GB), tune your heap settings:
+  ## - calculate 1/2 ram and cap to 1024MB
+  ## - calculate 1/4 ram and cap to 8192MB
+  ## - pick the max
+  ##
+  maxHeapSize: ""
+  ## newHeapSize:
+  ## A good guideline is 100 MB per CPU core.
+  ## - min(100 * num_cores, 1/4 * heap size)
+  ## ref: https://docs.datastax.com/en/archived/cassandra/2.0/cassandra/operations/ops_tune_jvm_c.html
+  ##
+  newHeapSize: ""
+
+replicaCount: 5
+updateStrategy:
+  type: RollingUpdate
+
+
+#nodeSelector:
+#  type: dataNode
+
+
+
+
+
+pdb:
+
+serviceAccount:
+  ## @param serviceAccount.create Enable the creation of a ServiceAccount for Cassandra pods
+  ##
+  create: true
+  ## @param serviceAccount.name The name of the ServiceAccount to use.
+  ## If not set and create is true, a name is generated using the cassandra.fullname template
+  ##
+  name: ""
+  ## @param serviceAccount.annotations Annotations for Cassandra Service Account
+  ##
+  annotations: {}
+  ## @param serviceAccount.automountServiceAccountToken Automount API credentials for a service account.
+  ##
+  automountServiceAccountToken: true
+
+## @section Traffic Exposure Parameters
+##
+
+## Cassandra service parameters
+##
+service:
+  ## @param service.type Cassandra service type
+  ##
+  type: NodePort
+  ## @param service.ports.cql Cassandra service CQL Port
+  ## @param service.ports.metrics Cassandra service metrics port
+  ##
+  ports:
+    cql: 9042
+    metrics: 8080
+  ## Node ports to expose
+  ## ref: https://kubernetes.io/docs/concepts/services-networking/service/#type-nodeport
+  ## @param service.nodePorts.cql Node port for CQL
+  ## @param service.nodePorts.metrics Node port for metrics
+  ##
+  nodePorts:
+    cql: "31994"
+    metrics: "31995"
+
+
+ 
+
+
+persistence:
+  enabled: true
+  storageClass: "local-path"
+  size: 100Gi
+  commitLogsize: 2Gi
+
+pdb:
+  create: true
+  minAvailable: 1
+
+
+metrics:
+  enabled: false
+
+  serviceMonitor:
+    enabled: false
+    namespace: monitoring
+    interval: "60s"
+
+  configuration: |
+    host: localhost:{{ .Values.containerPorts.jmx }}
+    ssl: False
+    
+    user:
+    password:
+    listenPort: {{ .Values.metrics.containerPorts.http }}
+    blacklist:
+      # To profile the duration of jmx call you can start the program with the following options
+      # > java -Dorg.slf4j.simpleLogger.defaultLogLevel=trace -jar cassandra_exporter.jar config.yml --oneshot
+      #
+      # To get intuition of what is done by cassandra when something is called you can look in cassandra
+      # https://github.com/apache/cassandra/tree/trunk/src/java/org/apache/cassandra/metrics
+      # Please avoid to scrape frequently those calls that are iterating over all sstables
+
+      # Unaccessible metrics (not enough privilege)
+      - java:lang:memorypool:.*usagethreshold.*
+
+      # Leaf attributes not interesting for us but that are presents in many path
+      - .*:999thpercentile
+      - .*:95thpercentile
+      - .*:fifteenminuterate
+      - .*:fiveminuterate
+      - .*:durationunit
+      - .*:rateunit
+      - .*:stddev
+      - .*:meanrate
+      - .*:mean
+      - .*:min
+
+      # Path present in many metrics but uninterresting
+      - .*:viewlockacquiretime:.*
+      - .*:viewreadtime:.*
+      - .*:cas[a-z]+latency:.*
+      - .*:colupdatetimedeltahistogram:.*
+
+      # Mostly for RPC, do not scrap them
+      - org:apache:cassandra:db:.*
+
+      # columnfamily is an alias for Table metrics
+      # https://github.com/apache/cassandra/blob/8b3a60b9a7dbefeecc06bace617279612ec7092d/src/java/org/apache/cassandra/metrics/TableMetrics.java#L162
+      - org:apache:cassandra:metrics:columnfamily:.*
+
+      # Should we export metrics for system keyspaces/tables ?
+      - org:apache:cassandra:metrics:[^:]+:system[^:]*:.*
+
+      # Don't scrap us
+      - com:criteo:nosql:cassandra:exporter:.*
+
+    maxScrapFrequencyInSec:
+       50:
+        - .*
+
+      # Refresh those metrics only every hour as it is costly for cassandra to retrieve them
+      3600:
+        - .*:snapshotssize:.*
+        - .*:estimated.*
+        - .*:totaldiskspaceused:.*
+
+

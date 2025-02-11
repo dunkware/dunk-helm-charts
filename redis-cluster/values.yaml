@@ -1,0 +1,24 @@
+
+
+global:
+  storageClass: "local-path"
+  redis:
+    password: "TkAFkNFo6oBjlcpazV3K7cTrtEIYzQe24w"
+service:
+  type: NodePort
+  nodePorts:
+    redis: "32500"
+
+persistence:
+  enabled: true
+  size: 80Gi
+
+nodeSelector:
+  type: dataNode
+
+cluster:
+  init: true
+  nodes: 6
+  replicas: 1
+  externalAccess:
+    enabled: false

@@ -1,0 +1,49 @@
+global:
+  storageClass: "local-path"
+  redis:
+    password: "cacheMe2Please"
+
+ #nodePorts:
+ # redis: 32506 
+
+persistence:
+  ## @param persistence.enabled Enable persistence on Redis&reg;
+  ## If enabled, nodes are using Persistent Volume Claims
+  ## If disabled, an emptyDir volume is used. This is not recommended.
+  ## ref: https://github.com/bitnami/charts/tree/main/bitnami/redis-cluster#persistence
+  ##
+  enabled: true
+
+image:
+  registry: testrock1:31000
+  repository: redis-bitnami
+  tag: cluster-r07
+  digest: ""
+
+service:
+  ports:
+   redis: 6379
+  ##
+
+  
+cluster:
+  containerSecurityContext:
+    enabled: false 
+  usePassword: false
+  tls.authClients: false
+  externalAccess:
+    enabled: false
+
+#  nodes: 3
+redis:
+  #useAOFPersistence: true
+  configmap: |
+    protected-mode no
+    loadmodule /redismodules/librejson.so
+    loadmodule /redismodules/redisearch.so
+    loadmodule /redismodules/redisbloom.so
+    loadmodule /redismodules/redistimeseries.so
+
+#  nodeSelector:
+#    type: dataNode
+
